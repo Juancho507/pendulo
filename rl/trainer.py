@@ -7,8 +7,14 @@ from stable_baselines3 import PPO
 # Custom environment with modified rewards
 from rl.env import CustomCartPole   
 
+import os
 
-def train_model(config, timesteps=10000):
+MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model/cartpole_model")
+
+
+def train_model(config, timesteps=150000):
+
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
 
     # Create CartPole environment
     env = gym.make("CartPole-v1")
@@ -23,6 +29,7 @@ def train_model(config, timesteps=10000):
     model.learn(total_timesteps=timesteps)
 
     # Save trained model
-    model.save("cartpole_model")
+    model.save(MODEL_PATH)
+    print(f"\nModel saved to: {MODEL_PATH}")
 
     return model, env

@@ -1,51 +1,52 @@
-# RL environment
-import gymnasium as gym  
-
-# PPO algorithm
-from stable_baselines3 import PPO  
-
-# Custom reward environment
-from rl.env import CustomCartPole     
-
-# NLP module
-from nlp.interpreter import interpret_instruction  
-
-# Control execution speed (delays)
+import gymnasium as gym
+from stable_baselines3 import PPO
+from rl.env import CustomCartPole
+from nlp.interpreter import interpret_instruction
 import time
+import sys
+import os
 
-# Natural language instruction
-instruction = """
-Maintain balance as long as possible,
-minimize sudden movements and prioritize stability.
-"""
+MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model/cartpole_model")
 
-# Convert instruction to config
-config = interpret_instruction(instruction)
 
-# Create environment with human rendering (visualization)
-env = gym.make("CartPole-v1", render_mode="human")
+def main():
+    if len(sys.argv) > 1:
+        instruction = " ".join(sys.argv[1:])
+    else:
+        instruction = "mantén el equilibrio el mayor tiempo posible, minimiza movimientos bruscos y prioriza estabilidad"
 
-# Apply custom reward wrapper
-env = CustomCartPole(env, config)
+    print("\nINSTRUCTION:")
+    print(instruction)
 
-# Load trained model
-model = PPO.load("cartpole_model")
+    config = interpret_instruction(instruction)
+    print("\nGENERATED CONFIG:", config)
 
-# Reset environment
-obs, _ = env.reset()
+    env = gym.make("CartPole-v1", render_mode="human")
+    env = CustomCartPole(env, config)
 
-# Run simulation
-for step in range(1000):
+    try:
+        model = PPO.load(MODEL_PATH)
+        print(f"\nLoaded model from: {MODEL_PATH}")
+    except FileNotFoundError:
+        print(f"\nNo trained model found at: {MODEL_PATH}")
+        print("Please run the train service first:  docker compose run train")
+        sys.exit(1)
 
-    # Predict action using trained model
-    action, _ = model.predict(obs, deterministic=True)
+    obs, _ = env.reset()
+    print("\nRunning visualization... Press Ctrl+C to stop.\n")
 
-    # Apply action
-    obs, _, terminated, truncated, _ = env.step(action)
+    try:
+        for step in range(2000):
+            action, _ = model.predict(obs, deterministic=True)
+            obs, _, terminated, truncated, _ = env.step(action)
+            time.sleep(0.02)
+            if terminated or truncated:
+                obs, _ = env.reset()
+    except KeyboardInterrupt:
+        print("\nVisualization stopped.")
+    finally:
+        env.close()
 
-    # Slow down visualization (so it can be seen clearly)
-    time.sleep(0.02)
 
-    # Reset environment if episode ends
-    if terminated or truncated:
-        obs, _ = env.reset()
+if __name__ == "__main__":
+    main()

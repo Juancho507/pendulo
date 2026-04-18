@@ -1,0 +1,21 @@
+services:
+
+  # Entrena el agente y guarda el modelo
+  train:
+    build: .
+    command: python main.py
+    volumes:
+      - ./model:/app/model
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Visualiza el agente en el navegador → http://localhost:6080/vnc.html
+  visualize:
+    build: .
+    command: /start_vnc.sh
+    volumes:
+      - ./model:/app/model
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "6080:6080"

@@ -22,6 +22,9 @@ class CustomCartPole(gym.Wrapper):
         # Penalize deviation from vertical (stability)
         reward_total -= self.config["stability"] * abs(theta)
 
+        # Penalize distance from center — keeps the cart from drifting
+        reward_total -= self.config["stability"] * abs(x) * 0.5
+
         # Penalize fast movements (smoothness)
         reward_total -= self.config["smoothness"] * abs(x_dot) * 0.1
 

@@ -4,7 +4,7 @@ import re
 # Common words that we want to ignore
 STOPWORDS = {
     "the", "a", "an", "and", "or", "to", "of", "in", "on",
-    "for", "with", "as", "by", "at", "from", "that"
+    "for", "with", "as", "by", "at", "from", "that", "as", "possible"
 }
 
 def preprocess(text):
