@@ -13,7 +13,7 @@ def main():
     if len(sys.argv) > 1:
         instruction = " ".join(sys.argv[1:])
     else:
-        instruction = "mantén el equilibrio el mayor tiempo posible, minimiza movimientos bruscos y prioriza estabilidad"
+        instruction = "Maintain your balance for as long as possible, minimize sudden movements, and prioritize stability"
 
     print("\nINSTRUCTION:")
     print(instruction)
